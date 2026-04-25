@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 
 const app = express();
-const port = 2026;
+const port = 3233;
 
 app.get('/', (req, res) => {
     res.send('SecretCurse boilerplate :P');
