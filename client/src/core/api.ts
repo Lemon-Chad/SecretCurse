@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 const TOKEN_KEY = "secret_curses_token";
 
 let token: string | null = null;
@@ -57,8 +59,49 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 const api = {
     ping: async () => await get<{ pong: string }>('/ping'),
+
+    login: async (username: string, password: string): Promise<{ access_token: string | null; error: string | null; }> => {
+        const result = await post<{
+            access_token: string | null;
+            refresh_token: string;
+            error: string | null;
+        }>('/auth/login', {
+            username,
+            password,
+        });
+
+        setToken(result.access_token);
+
+        return {
+            access_token: result.access_token,
+            error: result.error,
+        };
+    },
+
+    register: async (username: string, password: string): Promise<{ access_token: string | null, error: string | null; }> => {
+        const result = await post<{
+            access_token: string | null;
+            refresh_token: string;
+            error: string | null;
+        }>('/auth/register', { username, password });
+
+        setToken(result.access_token);
+
+        return { 
+            access_token: result.access_token,
+            error: result.error
+        };
+    },
+
+    me: async(): Promise<User> => {
+        return get<User>('/auth/me');
+    }
 };
 
 export {
     api
+};
+
+export type User = {
+    username: string;
 };
