@@ -17,19 +17,21 @@ function App() {
 
   const [state, setState] = useState<PageState>(PageState.WAITING);
 
+  const [authenticateKey, setAuthenticateKey] = useState(0);
+
   useEffect(() => {
     api.me().then(_ => {
       setState(PageState.HOME);
     }).catch(_ => {
       setState(PageState.AUTHENTICATE);
     });
-  }, []);
+  }, [ authenticateKey ]);
 
   return (<div className="app">
     <div className="app-title"><h1>Secret Curses</h1></div>
     <div className="app-body">
       {(state === PageState.WAITING) && <p>Connecting</p>}
-      {(state === PageState.AUTHENTICATE) && <AuthenticationScreen/>}
+      {(state === PageState.AUTHENTICATE) && <AuthenticationScreen tryAuthenticate={() => setAuthenticateKey(k => k + 1)}/>}
       {(state === PageState.HOME) && <Home/>}
     </div>
   </div>);

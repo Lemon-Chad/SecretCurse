@@ -2,13 +2,17 @@
 :root {
     --switchHover: #3cffaa65;
     --switchUnderline: #3cffaa;
+    --inputColor: #90e5c023;
+    --inputColorFocus: #78dfb338;
+    --txt-col: #dffff8;
+    --txt-mute: #aabfbb;
 }
 
 .authSwitch {
     padding: 0;
     margin: 0;
     text-align: center;
-    width: 10vw;
+    width: calc(min(30vw, max(15vw, 25vh)));
     background-color: #0000;
     transition: 0.5s;
     box-shadow: inset 0 0 0 0 var(--switchUnderline);
@@ -22,4 +26,49 @@
 
 .activeSwitch {
     box-shadow: inset 0 -0.5vh 0 0 var(--switchUnderline);
+}
+
+.authFields {
+    display: flex;
+    flex-direction: column;
+}
+
+.authLabel {
+    margin: 1vh;
+    display: block;
+    width: 30vw;
+}
+
+.authInput {
+    width: calc(min(60vw, max(30vw, 50vh)));
+    height: 5vh;
+    font-size: 1em;
+    background-color: var(--inputColor);
+    border: none;
+    color: var(--txt-mute);
+    padding: 0.5em;
+    transition: 0.3s;
+}
+
+.authInput:focus {
+    background-color: var(--inputColorFocus);
+    box-shadow: 0 0 5px var(--inputColorFocus);
+    color: var(--txt-col);
+    outline: none;
+}
+
+.authButton {
+    background-color: var(--inputColor);
+    color: var(--txt-mute);
+    margin: 2vh 0;
+    padding: 3%;
+    border-radius: 0.25vw;
+    width: fit-content;
+    transition: 0.4s;
+}
+
+.authButton:hover {
+    background-color: var(--inputColorFocus);
+    color: var(--txt-col);
+    box-shadow: 0 0 5px var(--inputColorFocus);
 }
