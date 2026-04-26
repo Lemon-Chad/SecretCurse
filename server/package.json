@@ -17,6 +17,7 @@
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
     "mysql": "^2.18.1",
-    "mysql2": "^3.22.2"
+    "mysql2": "^3.22.2",
+    "socket.io": "^4.8.3"
   }
 }

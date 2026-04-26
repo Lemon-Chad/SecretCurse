@@ -79,14 +79,7 @@ function RegisterComponent({ formState, setFormState, register, error } : { form
     </div>);
 }
 
-enum AuthState {
-    LOGIN,
-    REGISTER,
-}
-
 export default function AuthenticationScreen({ tryAuthenticate }: { tryAuthenticate: () => void }) {
-    const [state, setState] = useState<AuthState>(AuthState.LOGIN);
-
     const [formState, setFormState] = useState<FormState>({
         login: {
             username: "",
@@ -99,8 +92,6 @@ export default function AuthenticationScreen({ tryAuthenticate }: { tryAuthentic
     });
 
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => setError(""), [ state ]);
 
     const login = () => {
         api.login(formState.login.username, formState.login.password)
@@ -141,5 +132,5 @@ export default function AuthenticationScreen({ tryAuthenticate }: { tryAuthentic
                 error={error}
             />
         }
-    ]}/>);
+    ]} onChange={(_) => setError("")}/>);
 }

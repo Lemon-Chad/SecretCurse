@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { socketApi } from "./socket";
 
 const TOKEN_KEY = "secret_curses_token";
 
@@ -12,10 +12,12 @@ export function loadToken() {
 
 export function setToken(t: string | null) {
     token = t;
-    if (t)
+    if (t) {
         localStorage.setItem(TOKEN_KEY, t);
-    else
+        socketApi.authorize();
+    } else {
         localStorage.removeItem(TOKEN_KEY);
+    }
 }
 
 function headers() {
@@ -93,7 +95,7 @@ const api = {
 };
 
 export {
-    api
+    api,
 };
 
 export type User = {

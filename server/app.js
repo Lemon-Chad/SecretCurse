@@ -3,15 +3,28 @@ dotenv.config();
 
 import express from 'express';
 import path from 'path';
-import mysql from 'mysql2';
 import { env } from 'process';
 import cors from 'cors';
 import { createToken, decodeToken, tokenToAccount } from './tokens.js';
-import { usernameToUser } from './users.js';
+import { idToUser, usernameToUser } from './users.js';
 import crypto from 'crypto';
+import http from 'http';
+import auth from './routes/auth.js';
+import { pool } from './db.js';
+import { Server } from 'socket.io';
 
 const app = express();
 const port = 3233;
+const socketPort = 3234;
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: env.CORS_URL || "*",
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
+});
 
 app.use(express.json());
 
@@ -21,48 +34,6 @@ if (env.CORS_URL)
         credentials: true,
     }));
 
-const pool = mysql.createPool({
-    host: env.MYSQL_HOST,
-    user: env.MYSQL_USER,
-    password: env.MYSQL_PSWD,
-    database: 'secret_curses',
-}).promise();
-
-
-async function getCurrentAccount(req, res) {
-    const authorization = req.get("Authorization");
-    if (!authorization) {
-        res.status(401).send("Authorization header missing");
-        return null;
-    }
-
-    const parts = authorization.split(' ');
-    if (parts.length !== 2 || parts[0].toLowerCase() !== "bearer") {
-        res.status(401).send("Invalid Authorization header");
-        return null;
-    }
-
-    const token = parts[1];
-    let user;
-    try {
-        user = await tokenToAccount(token, pool);
-    } catch (e) {
-        res.status(401).send(e.message);
-        return null;
-    }
-    
-    return user;
-}
-
-function requiresAccount(callback) {
-    return (req, res) => {
-        getCurrentAccount(req, res).then(usr => {
-            if (usr !== null) callback(req, res, usr);
-        });
-    }
-}
-
-
 app.get('/', (req, res) => {
     res.send('SecretCurse boilerplate :P');
 });
@@ -71,47 +42,62 @@ app.get('/ping', (req, res) => {
     res.send({ pong: 'pong!' });
 });
 
-app.post('/auth/login', async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-    if (!username || !password || username.length == 0 || password.length == 0)
-        return res.send({ access_token: null, error: "Missing username/password" });
+// Auth
 
-    const user = await usernameToUser(username, pool);
-    if (!user)
-        return res.send({ access_token: null, error: "Username not found" });
+app.use('/auth', auth.router);
 
-    const hashedPswd = crypto.createHash("md5").update(password).digest("hex");
-    if (hashedPswd !== user.password)
-        return res.send({ access_token: null, error: "Invalid password" });
+// SocketIO
 
-    return res.send({ access_token: createToken(user.id, 365 * 24 * 60), error: null })
-});
+const matchQueue = [];
+const authorization = new Map();
 
-app.post('/auth/register', async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-    if (!username || !password || username.length == 0 || password.length == 0)
-        return res.send({ access_token: null, error: "Missing username/password" });
+function strictEvent(socket, ev, callback, onFailure=undefined) {
+    socket.on(ev, (...args) => {
+        if (!authorization.has(socket.id)) {
+            if (onFailure !== undefined)
+                onFailure(...args);
+            else
+                socket.emit("authorization-error", "Socket is not authorized");
+            return;
+        }
 
-    if (await usernameToUser(username, pool))
-        return res.send({ access_token: null, error: "Username is already taken" });
-
-    const user = await pool.query(
-        "INSERT INTO accounts (username, password) VALUES (?, ?)",
-        [username, crypto.createHash('md5').update(password).digest("hex")]
-    );
-
-    return res.send({ access_token: createToken(user[0].insertId, 365 * 24 * 60), error: null })
-});
-
-app.get('/auth/me', requiresAccount((req, res, usr) => {
-    res.send({
-        username: usr.username
+        callback(authorization.get(socket.id), ...args);
     });
-}));
+}
+
+io.on('connection', (socket) => {
+    console.log('Connection established.');
+
+    socket.on('disconnect', function () {
+        if (authorization.has(socket.id))
+            authorization.delete(socket.id);
+        console.log('Socket disconnected.');
+    });
+
+    socket.on('authorize', async (token) => {
+        let user;
+        try {
+            user = await tokenToAccount(token, pool);
+        } catch (e) {
+            socket.emit("authorization-error", "Token is invalid")
+            return;
+        }
+
+        authorization.set(socket.id, user.id);
+        socket.emit("authorization", "Socket authorized");
+    });
+
+    strictEvent(socket, "me", (id, resolve) => {
+        idToUser(id, pool).then((usr) => resolve({
+            user: { username: usr.username }
+        }));
+    }, (resolve) => resolve({ error: "Socket is not authorized" }));
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
+server.listen(socketPort, () => {
+    console.log(`Websocket is running on port ${socketPort}`);
+});
