@@ -28,10 +28,10 @@ export default function NavPage({ pages, style, onChange }: NavPageProps) {
             {pages.map((page, pageIdx) => (<>
                 <a onClick={() => {
                     setIdx(pageIdx);
-                    
+
                     if (onChange)
                         onChange(pageIdx);
-                }} key={pageIdx} className={`navButton ${idx == pageIdx && 'activeNavButton'}`}>
+                }} key={pageIdx} className={`navButton ${idx == pageIdx ? 'activeNavButton' : ''}`}>
                     <div>
                         <p>{page.label}</p>
                     </div>
