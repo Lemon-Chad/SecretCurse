@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import { api } from './core/api';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+  const [resp, setResp] = useState<string>("waiting...");
+
+  useEffect(() => {
+    api.ping().then(res => {
+      setResp(res.pong);
+    });
+  });
+
+  return (<div className="app">
+    <div className="app-title"><h1>Secret Curses</h1></div>
+    <div className="app-body">
+      <p>{resp}</p>
     </div>
-  );
+  </div>);
 }
 
 export default App;

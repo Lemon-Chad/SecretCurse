@@ -1,38 +1,102 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,100..900;1,100..900&family=BJCree:wght@400;500;600;700&family=Noto+Sans+Chakma&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root { 
+  --bg-col: #363f3c; 
+  --txt-col: #dffff8;
+  --txt-str-color: #3cffaa;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.bjcree-regular {
+  font-family: "BJCree", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.bjcree-medium {
+  font-family: "BJCree", serif;
+  font-weight: 500;
+  font-style: normal;
 }
 
-.App-header {
-  background-color: #282c34;
+.bjcree-semibold {
+  font-family: "BJCree", serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.bjcree-bold {
+  font-family: "BJCree", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.noto-sans-chakma-regular {
+  font-family: "Noto Sans Chakma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.archivo-black-regular {
+  font-family: "Archivo Black", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/*
+
+.archivo-<uniquifier> {
+  font-family: "Archivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+
+.roboto-condensed-<uniquifier> {
+  font-family: "Roboto Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+}
+
+ */
+
+.app {
+  background-color: var(--bg-col);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: var(--txt-col);
+
+  font-family: "Archivo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
 }
 
-.App-link {
-  color: #61dafb;
+.app-title {
+  color: var(--txt-str-color);
+  font-family: "Archivo Black", sans-serif;
+  font-weight: 400;
+  font-size: 3vh;
+  font-style: normal;
+  max-height: 15vh;
+  min-height: 15vh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-body {
+  min-height: 85vh;
+  width: 100vw;
+  padding: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
