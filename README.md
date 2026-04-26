@@ -22,7 +22,7 @@ patterns to summon their other two pieces.
 Win by eliminating all other pieces.
 
 ## Implementation
-- [ ] Login/Register
+- [x] Login/Register
 - [ ] Matchmaking
 - [ ] Board State
 - [ ] Piece Movement

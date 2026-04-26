@@ -8,7 +8,11 @@ Two-way communication with [SocketIO](https://www.fullstack.com/labs/resources/b
 
 ## Login/Registration
 
-TBD
+`POST auth/login` takes `{ username: string; password: string; } and returns `{ access_token: string | null; error: string | null }`.
+
+`POST auth/register` takes `{ username: string; password: string; } and returns `{ access_token: string | null; error: string | null }`.
+
+`GET auth/me` requires `Authorization: Bearer token` header, and returns data about the corresponding user.
 
 ## Matchmaking
 
