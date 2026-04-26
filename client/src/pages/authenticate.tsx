@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../App.css";
 import "./authenticate.css";
 import { api } from "../core/api";
@@ -95,6 +95,8 @@ export default function AuthenticationScreen({ tryAuthenticate }: { tryAuthentic
 
     const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => setError(""), [ state ]);
+
     const login = () => {
         api.login(formState.login.username, formState.login.password)
             .then(res => {
@@ -148,7 +150,7 @@ export default function AuthenticationScreen({ tryAuthenticate }: { tryAuthentic
         <div>
             {(state === AuthState.LOGIN) && <LoginComponent formState={formState} setFormState={setFormState} login={login}/>}
             {(state === AuthState.REGISTER) && <RegisterComponent formState={formState} setFormState={setFormState} register={register}/>}
-            {error && <p>{error}</p>}
+            {error && <p style={{ color: "var(--txt-err)" }}>{error}</p>}
         </div>
     </div>)
 }

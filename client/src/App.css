@@ -4,7 +4,12 @@
   --bg-col: #363f3c; 
   --txt-col: #dffff8;
   --txt-str-color: #3cffaa;
-    --txt-mute: #aabfbb;
+  --txt-mute: #aabfbb;
+  --txt-err: rgb(234, 126, 79);
+  --switchHover: #3cffaa65;
+  --switchUnderline: #3cffaa;
+  --inputColor: #90e5c023;
+  --inputColorFocus: #78dfb338;
 }
 
 body {

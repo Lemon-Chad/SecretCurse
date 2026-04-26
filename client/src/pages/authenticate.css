@@ -1,13 +1,4 @@
 
-:root {
-    --switchHover: #3cffaa65;
-    --switchUnderline: #3cffaa;
-    --inputColor: #90e5c023;
-    --inputColorFocus: #78dfb338;
-    --txt-col: #dffff8;
-    --txt-mute: #aabfbb;
-}
-
 .authSwitch {
     padding: 0;
     margin: 0;

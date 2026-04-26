@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { env } from 'process';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const JWT_SECRET = env.JWT_SECRET;
 const JWT_ALG = env.JWT_ALG;
@@ -44,7 +47,7 @@ export async function tokenToAccount(token, pool) {
         throw new Error("Invalid or expired access token");
     }
 
-    const rows = await pool.query("SELECT * FROM accounts WHERE id = ?", [userId]);
+    const rows = (await pool.query("SELECT * FROM accounts WHERE id = ?", [userId]))[0];
     if (rows.length == 0)
         throw new Error("User not found");
     return rows[0];

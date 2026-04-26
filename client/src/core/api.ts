@@ -31,12 +31,8 @@ async function get<T>(path: string): Promise<T> {
         headers: headers(),
     });
 
-    console.log(`${BASE_URL}${path}`);
-
     if (res.ok) {
-        console.log("reading data");
         const data = await res.json();
-        console.log("data read.");
         return data as T;
     }
 
@@ -63,7 +59,6 @@ const api = {
     login: async (username: string, password: string): Promise<{ access_token: string | null; error: string | null; }> => {
         const result = await post<{
             access_token: string | null;
-            refresh_token: string;
             error: string | null;
         }>('/auth/login', {
             username,
@@ -81,7 +76,6 @@ const api = {
     register: async (username: string, password: string): Promise<{ access_token: string | null, error: string | null; }> => {
         const result = await post<{
             access_token: string | null;
-            refresh_token: string;
             error: string | null;
         }>('/auth/register', { username, password });
 
