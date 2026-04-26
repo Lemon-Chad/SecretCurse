@@ -6,6 +6,10 @@
   --txt-str-color: #3cffaa;
 }
 
+body {
+  user-select: none;
+}
+
 .bjcree-regular {
   font-family: "BJCree", serif;
   font-weight: 400;
@@ -93,7 +97,8 @@
 
 .app-body {
   min-height: 85vh;
-  width: 100vw;
+  width: 100%;
+  box-sizing: border-box;
   padding: 2%;
   display: flex;
   flex-direction: column;
