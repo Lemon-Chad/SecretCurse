@@ -3,10 +3,21 @@ import { socketApi } from "../../core/socket";
 import { useState } from "react";
 
 export default function Matchmaking() {
-    const [ping, setPing] = useState<string>("Not pinged.");
+    const [matchmaking, setMatchmaking] = useState(false);
 
     return (<>
-        <Button label="Ping" onClick={() => socketApi.me().then(usr => setPing(usr.username)).catch(err => setPing(err))}/>
-        <h1>{ping}</h1>
+        <Button label={!matchmaking ? "Search for Game" : "Cancel"} onClick={() => {
+            if (matchmaking) {
+                socketApi.exitQueue()
+                    .then(() => setMatchmaking(false))
+                    .catch(() => setMatchmaking(false));
+            } else {
+                socketApi.enterQueue()
+                    .then(() => setMatchmaking(true))
+                    .catch(() => setMatchmaking(false));
+            }
+        }}/>
+
+        <h1>{matchmaking && "Searching for game..."}</h1>
     </>);
 }

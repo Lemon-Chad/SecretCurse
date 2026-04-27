@@ -7,9 +7,23 @@ const socket = io(BASE_URL, {
     withCredentials: true
 });
 
-socket.on("authorization-error", (message) => {
+socket.on("authorization-error", (message: string) => {
     throw new Error(message);
 });
+
+let onMatchEnter = () => {};
+socket.on("match-found", (opponent) => {
+    matchState = {
+        opponentUsername: opponent
+    };
+
+    onMatchEnter();
+})
+
+export type MatchState = {
+    opponentUsername: string
+};
+let matchState: MatchState | null = null
 
 const socketApi = {
     authorize: () => { 
@@ -26,7 +40,29 @@ const socketApi = {
                 resolve(res.user!);
             });
         });
-    }
+    },
+    enterQueue: (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            socket.emit('enter-queue', (res: { status: string; error?: string }) => {
+                if (res.status === "ok")
+                    resolve();
+                else
+                    reject(res.error!);
+            });
+        })
+    },
+    exitQueue: (): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            socket.emit('exit-queue', (res: { status: string; error?: string }) => {
+                if (res.status === "ok")
+                    resolve();
+                else
+                    reject(res.error!);
+            });
+        })
+    },
+    getMatchState: (): MatchState | null => matchState,
+    matchFoundListener: (callback: () => void) => onMatchEnter = callback,
 };
 
 export { socketApi };

@@ -12,6 +12,7 @@ import http from 'http';
 import auth from './routes/auth.js';
 import { pool } from './db.js';
 import { Server } from 'socket.io';
+import spinLock from './spinLock.js';
 
 const app = express();
 const port = 3233;
@@ -48,7 +49,16 @@ app.use('/auth', auth.router);
 
 // SocketIO
 
+/*
+
+matchQueue: {
+    id: number;
+    socket: Socket;
+}[];
+
+ */
 const matchQueue = [];
+const queueLock = spinLock.createMutex();
 const authorization = new Map();
 
 function strictEvent(socket, ev, callback, onFailure=undefined) {
@@ -71,6 +81,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', function () {
         if (authorization.has(socket.id))
             authorization.delete(socket.id);
+        if (matchQueue.filter(val => val.socket.id === socket.id).length !== 0)
+            matchQueue.splice(matchQueue.indexOf(matchQueue.filter(val => val.socket.id === socket.id)[0]), 1);
         console.log('Socket disconnected.');
     });
 
@@ -92,6 +104,51 @@ io.on('connection', (socket) => {
             user: { username: usr.username }
         }));
     }, (resolve) => resolve({ error: "Socket is not authorized" }));
+
+    strictEvent(socket, "enter-queue", async (id, resolve) => {
+        spinLock.lock(queueLock);
+
+        const filtered = matchQueue.filter(val => val.id === id);
+        if (filtered.length !== 0) {
+            resolve({ status: "err", error: "User is already in queue" });
+            spinLock.unlock(queueLock);
+            return;
+        }
+
+        // match with other person
+        if (matchQueue.length > 0) {
+            const match = matchQueue.pop();
+            
+            const userSelf = await idToUser(id, pool);
+            const userMatch = await idToUser(match.id, pool);
+
+            socket.emit("match-found", userMatch.username);
+            match.socket.emit("match-found", userSelf.username);
+        } else {
+            matchQueue.push({ id, socket });
+        }
+
+        resolve({ status: "ok" });
+
+        spinLock.unlock(queueLock);
+    }, (resolve) => ({ status: "err", error: "Socket is not authorized" }));
+
+    strictEvent(socket, "exit-queue", (id, resolve) => {
+        spinLock.lock(queueLock);
+
+        const filtered = matchQueue.filter(val => val.id === id);
+        if (filtered.length === 0) {
+            resolve({ status: "err", error: "User not in queue" });
+            spinLock.unlock(queueLock);
+            return;
+        }
+
+        // remove from queue
+        matchQueue.splice(matchQueue.indexOf(filtered[0]), 1);
+        resolve({ status: "ok" })
+
+        spinLock.unlock(queueLock);
+    }, (resolve) => ({ status: "err", error: "Socket is not authorized" }));
 });
 
 app.listen(port, () => {
